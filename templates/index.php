@@ -103,15 +103,16 @@ $tabs = [
 		.search-form { display: flex; gap: 0.5rem; margin-bottom: 1.25rem; }
 		.search-form input[type="search"] { flex: 1; padding: 0.6rem 0.75rem; border-radius: 6px; border: 1px solid var(--wp-app-color-border); background: var(--wp-app-color-surface); color: var(--wp-app-color-text); font-size: 1rem; }
 		.search-form button { padding: 0.6rem 1rem; border-radius: 6px; border: 1px solid var(--wp-app-color-border); background: var(--wp-app-color-surface-alt); color: var(--wp-app-color-text); font-size: 1rem; }
-		.order-row { display: flex; align-items: center; gap: 0.75rem; background: var(--wp-app-color-surface); border-radius: 8px; padding: 0.9rem 1rem; margin-bottom: 0.6rem; text-decoration: none; color: inherit; transition: opacity 0.3s, transform 0.3s; }
+		.order-row { display: flex; flex-direction: column; gap: 0.4rem; background: var(--wp-app-color-surface); border-radius: 8px; padding: 0.9rem 1rem; margin-bottom: 0.6rem; text-decoration: none; color: inherit; transition: opacity 0.3s, transform 0.3s; }
 		.order-row:hover { background: var(--wp-app-color-surface-alt); }
 		.order-row.order-row-done { opacity: 0; transform: translateX(20px); }
-		.order-main { flex: 1; min-width: 0; }
-		.order-number { font-weight: 600; }
-		.order-customer { color: var(--wp-app-color-muted); font-size: 0.9rem; }
-		.order-meta { color: var(--wp-app-color-muted); font-size: 0.8rem; margin-top: 0.15rem; }
+		.order-row-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; }
+		.order-number { font-weight: 600; min-width: 0; }
+		.order-row-bottom { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.5rem; }
+		.order-meta { color: var(--wp-app-color-muted); font-size: 0.8rem; }
+		.order-row-actions { display: flex; align-items: center; gap: 0.75rem; margin-left: auto; }
 		.order-total { font-weight: 600; white-space: nowrap; }
-		.status-badge { display: inline-block; padding: 0.15rem 0.5rem; border-radius: 999px; font-size: 0.75rem; background: var(--wp-app-color-surface-alt); color: var(--wp-app-color-muted); white-space: nowrap; }
+		.status-badge { display: inline-block; flex-shrink: 0; padding: 0.15rem 0.5rem; border-radius: 999px; font-size: 0.75rem; background: var(--wp-app-color-surface-alt); color: var(--wp-app-color-muted); white-space: nowrap; }
 		.status-badge.status-processing { background: var(--wp-app-color-primary); color: var(--wp-app-color-on-primary); }
 		.status-badge.status-completed { background: #2e7d32; color: #fff; }
 		.status-badge.status-on-hold { background: #b26a00; color: #fff; }
@@ -165,8 +166,11 @@ $tabs = [
 					$created = $order->get_date_created();
 					?>
 					<a class="order-row" href="<?php echo esc_url( home_url( '/' . $app_path . '/order/' . $order_id . '/' ) ); ?>" data-order-id="<?php echo esc_attr( $order_id ); ?>">
-						<div class="order-main">
+						<div class="order-row-top">
 							<div class="order-number">#<?php echo esc_html( $order->get_order_number() ); ?> &middot; <?php echo esc_html( $name ); ?></div>
+							<span class="status-badge <?php echo esc_attr( $status_class ); ?>"><?php echo esc_html( wc_get_order_status_name( 'wc-' . $status ) ); ?></span>
+						</div>
+						<div class="order-row-bottom">
 							<div class="order-meta">
 								<?php
 								echo esc_html(
@@ -179,12 +183,13 @@ $tabs = [
 								);
 								?>
 							</div>
+							<div class="order-row-actions">
+								<div class="order-total"><?php echo wp_kses_post( $order->get_formatted_order_total() ); ?></div>
+								<?php if ( 'processing' === $status ) : ?>
+									<button type="button" class="btn-complete" data-order-id="<?php echo esc_attr( $order_id ); ?>"><?php esc_html_e( 'Mark Completed', 'order-desk' ); ?></button>
+								<?php endif; ?>
+							</div>
 						</div>
-						<span class="status-badge <?php echo esc_attr( $status_class ); ?>"><?php echo esc_html( wc_get_order_status_name( 'wc-' . $status ) ); ?></span>
-						<div class="order-total"><?php echo wp_kses_post( $order->get_formatted_order_total() ); ?></div>
-						<?php if ( 'processing' === $status ) : ?>
-							<button type="button" class="btn-complete" data-order-id="<?php echo esc_attr( $order_id ); ?>"><?php esc_html_e( 'Mark Completed', 'order-desk' ); ?></button>
-						<?php endif; ?>
 					</a>
 				<?php endforeach; ?>
 			<?php endif; ?>
