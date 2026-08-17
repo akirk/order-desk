@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Order Desk
  * Description: A WordPress app powered by WpApp.
- * Version: 1.0.0
+ * Version: 1.0.0+e33baac6a195
  * Author: Alex Kirk
  * Text Domain: order-desk
  * Requires PHP: 7.4
