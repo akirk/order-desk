@@ -1,0 +1,49 @@
+{
+	"$schema": "https://playground.wordpress.net/blueprint-schema.json",
+	"meta": {
+		"title": "Order Desk",
+		"description": "A staff-facing order fulfillment queue for WooCommerce: see what needs packing, open an order for its items and shipping address, and mark it completed in one tap.",
+		"author": "Alex Kirk",
+		"categories": [
+			"Apps",
+			"WooCommerce"
+		]
+	},
+	"landingPage": "/order-desk/",
+	"steps": [
+		{
+			"step": "installPlugin",
+			"pluginData": {
+				"resource": "wordpress.org/plugins",
+				"slug": "woocommerce"
+			},
+			"options": {
+				"activate": true
+			}
+		},
+		{
+			"step": "importWxr",
+			"file": {
+				"resource": "url",
+				"url": "https://raw.githubusercontent.com/woocommerce/woocommerce/trunk/plugins/woocommerce/sample-data/sample_products.xml"
+			}
+		},
+		{
+			"step": "runPHP",
+			"code": "<?php\nrequire_once '/wordpress/wp-load.php';\n\nif ( ! function_exists( 'wc_get_products' ) || ! class_exists( 'WC_Order' ) ) {\n\treturn;\n}\n\n$product_ids = wc_get_products(\n\tarray(\n\t\t'limit'  => 20,\n\t\t'status' => 'publish',\n\t\t'return' => 'ids',\n\t)\n);\n\nif ( empty( $product_ids ) ) {\n\treturn;\n}\n\n$customers = array(\n\tarray(\n\t\t'first'    => 'Jamie',\n\t\t'last'     => 'Nolan',\n\t\t'email'    => 'jamie.nolan@example.com',\n\t\t'address'  => '145 Alder St',\n\t\t'city'     => 'Portland',\n\t\t'state'    => 'OR',\n\t\t'postcode' => '97201',\n\t\t'country'  => 'US',\n\t),\n\tarray(\n\t\t'first'    => 'Priya',\n\t\t'last'     => 'Desai',\n\t\t'email'    => 'priya.desai@example.com',\n\t\t'address'  => '900 Congress Ave',\n\t\t'city'     => 'Austin',\n\t\t'state'    => 'TX',\n\t\t'postcode' => '78701',\n\t\t'country'  => 'US',\n\t),\n\tarray(\n\t\t'first'    => 'Marco',\n\t\t'last'     => 'Silva',\n\t\t'email'    => 'marco.silva@example.com',\n\t\t'address'  => '55 16th St',\n\t\t'city'     => 'Denver',\n\t\t'state'    => 'CO',\n\t\t'postcode' => '80202',\n\t\t'country'  => 'US',\n\t),\n\tarray(\n\t\t'first'    => 'Rina',\n\t\t'last'     => 'Kobayashi',\n\t\t'email'    => 'rina.kobayashi@example.com',\n\t\t'address'  => '210 Pike St',\n\t\t'city'     => 'Seattle',\n\t\t'state'    => 'WA',\n\t\t'postcode' => '98101',\n\t\t'country'  => 'US',\n\t),\n\tarray(\n\t\t'first'    => 'Deshawn',\n\t\t'last'     => 'Carter',\n\t\t'email'    => 'deshawn.carter@example.com',\n\t\t'address'  => '80 Peachtree St',\n\t\t'city'     => 'Atlanta',\n\t\t'state'    => 'GA',\n\t\t'postcode' => '30303',\n\t\t'country'  => 'US',\n\t),\n\tarray(\n\t\t'first'    => 'Elin',\n\t\t'last'     => 'Berg',\n\t\t'email'    => 'elin.berg@example.com',\n\t\t'address'  => '12 Nicollet Mall',\n\t\t'city'     => 'Minneapolis',\n\t\t'state'    => 'MN',\n\t\t'postcode' => '55401',\n\t\t'country'  => 'US',\n\t),\n\tarray(\n\t\t'first'    => 'Oscar',\n\t\t'last'     => 'Reyes',\n\t\t'email'    => 'oscar.reyes@example.com',\n\t\t'address'  => '300 W Washington St',\n\t\t'city'     => 'Phoenix',\n\t\t'state'    => 'AZ',\n\t\t'postcode' => '85003',\n\t\t'country'  => 'US',\n\t),\n\tarray(\n\t\t'first'    => 'Nadia',\n\t\t'last'     => 'Petrov',\n\t\t'email'    => 'nadia.petrov@example.com',\n\t\t'address'  => '1 E Wacker Dr',\n\t\t'city'     => 'Chicago',\n\t\t'state'    => 'IL',\n\t\t'postcode' => '60601',\n\t\t'country'  => 'US',\n\t),\n);\n\n// Skew toward \"processing\" so the fulfillment queue isn't empty on first load.\n$statuses = array( 'processing', 'processing', 'processing', 'processing', 'processing', 'on-hold', 'completed', 'completed' );\n\nforeach ( $customers as $index => $customer ) {\n\t$order = new WC_Order();\n\t$order->save();\n\n\tforeach ( array( 'billing', 'shipping' ) as $type ) {\n\t\t$order->{\"set_{$type}_first_name\"}( $customer['first'] );\n\t\t$order->{\"set_{$type}_last_name\"}( $customer['last'] );\n\t\t$order->{\"set_{$type}_address_1\"}( $customer['address'] );\n\t\t$order->{\"set_{$type}_city\"}( $customer['city'] );\n\t\t$order->{\"set_{$type}_state\"}( $customer['state'] );\n\t\t$order->{\"set_{$type}_postcode\"}( $customer['postcode'] );\n\t\t$order->{\"set_{$type}_country\"}( $customer['country'] );\n\t}\n\t$order->set_billing_email( $customer['email'] );\n\n\t$count  = min( wp_rand( 1, 3 ), count( $product_ids ) );\n\t$picked = (array) array_rand( array_flip( $product_ids ), $count );\n\n\tforeach ( $picked as $product_id ) {\n\t\t$product = wc_get_product( $product_id );\n\t\tif ( $product ) {\n\t\t\t$order->add_product( $product, wp_rand( 1, 2 ) );\n\t\t}\n\t}\n\n\t$order->calculate_totals();\n\t$order->set_status( $statuses[ $index % count( $statuses ) ] );\n\t$order->save();\n}\n"
+		},
+		{
+			"step": "installPlugin",
+			"pluginData": {
+				"resource": "git:directory",
+				"url": "https://github.com/akirk/order-desk",
+				"ref": "dist/main",
+				"refType": "branch"
+			},
+			"options": {
+				"activate": true,
+				"targetFolderName": "order-desk"
+			}
+		}
+	]
+}
