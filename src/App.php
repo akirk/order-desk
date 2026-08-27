@@ -26,10 +26,10 @@ class App extends BaseApp {
 			$this->get_template_dir(),
 			$this->get_url_path(),
 			[
-				'app_name'           => $this->get_plugin_name(),
+				'app_name'            => $this->get_plugin_name(),
 				'app_name_textdomain' => 'order-desk',
-				'require_capability' => 'manage_woocommerce',
-				'my_apps'            => $this->get_plugin_name(),
+				'require_capability'  => 'manage_woocommerce',
+				'launcher'            => $this->get_plugin_name(),
 			]
 		);
 
