@@ -4,6 +4,8 @@ A staff-facing order fulfillment queue for WooCommerce: see what needs packing, 
 
 [Try Order Desk in WordPress Playground](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/akirk/order-desk/main/blueprint.json)
 
+[Try it in OpenStation](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/akirk/order-desk/main/blueprint-openstation.json) — the same app opened in desktop mode with the [OpenStation](https://github.com/WordPress/openstation) plugin.
+
 Order Desk is a secondary, easy-to-use frontend for a task WooCommerce staff already do in wp-admin — working through orders that are paid and waiting to ship — without the general-purpose order-list screen built for admins. It reads and writes through WooCommerce's own order objects; it keeps no data of its own.
 
 - **To Fulfill / Completed / All** tabs, with a search field for order number or customer name.
