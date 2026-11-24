@@ -105,7 +105,7 @@ class App extends BaseApp {
 				'methods'             => 'POST',
 				'callback'            => [ $this, 'rest_complete_order' ],
 				'permission_callback' => static function () {
-					return current_user_can( 'manage_woocommerce' );
+					return is_user_logged_in();
 				},
 				'args'                => [
 					'id' => [
