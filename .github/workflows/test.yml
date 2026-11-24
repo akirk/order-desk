@@ -1,0 +1,55 @@
+name: Tests
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tests-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  wordpress:
+    name: Real WooCommerce REST regressions
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: wordpress
+          MYSQL_DATABASE: app_tests
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --password=wordpress"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    steps:
+      - uses: actions/checkout@v6
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mysqli, intl, gd
+          tools: composer, wp-cli
+          coverage: none
+      - run: composer install --no-dev --prefer-dist --no-interaction --no-progress
+      - name: Prepare runner-local WordPress and WooCommerce
+        env:
+          WP_PATH: ${{ runner.temp }}/wordpress
+        run: |
+          wp core download --path="$WP_PATH"
+          wp config create --path="$WP_PATH" --dbname=app_tests --dbuser=root --dbpass=wordpress --dbhost=127.0.0.1
+          wp core install --path="$WP_PATH" --url=http://order-desk.test --title='Order Desk tests' --admin_user=admin --admin_password=ci-admin-password --admin_email=admin@example.invalid --skip-email
+          wp plugin install woocommerce --activate --path="$WP_PATH"
+          ln -s "$GITHUB_WORKSPACE" "$WP_PATH/wp-content/plugins/order-desk"
+          wp plugin activate order-desk --path="$WP_PATH"
+      - name: Exercise registered routes and persisted orders
+        env:
+          WP_PATH: ${{ runner.temp }}/wordpress
+        run: wp --path="$WP_PATH" --user=admin eval-file "$GITHUB_WORKSPACE/tests/complete-order.php"
