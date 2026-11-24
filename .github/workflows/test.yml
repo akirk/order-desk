@@ -36,8 +36,14 @@ jobs:
         with:
           php-version: '8.3'
           extensions: mysqli, intl, gd
-          tools: composer, wp-cli
+          tools: composer
           coverage: none
+      - name: Install WP-CLI in runner temporary directory
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -o "$RUNNER_TEMP/wp"
+          chmod +x "$RUNNER_TEMP/wp"
+          echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
+          "$RUNNER_TEMP/wp" --info
       - run: composer install --no-dev --prefer-dist --no-interaction --no-progress
       - name: Prepare runner-local WordPress and WooCommerce
         env:
