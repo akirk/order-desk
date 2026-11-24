@@ -3,6 +3,9 @@
 if ( ! defined( 'WP_CLI' ) || ! WP_CLI ) {
     throw new RuntimeException( 'Run through WP-CLI with WordPress and WooCommerce active.' );
 }
+if ( getenv( 'ORDER_DESK_TEST_DATABASE' ) !== DB_NAME ) {
+    throw new RuntimeException( 'Confirm the disposable test database with ORDER_DESK_TEST_DATABASE before creating fixtures.' );
+}
 
 $checks = 0;
 $assert = static function ( $condition, string $message ) use ( &$checks ): void {

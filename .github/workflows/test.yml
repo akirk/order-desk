@@ -52,4 +52,5 @@ jobs:
       - name: Exercise registered routes and persisted orders
         env:
           WP_PATH: ${{ runner.temp }}/wordpress
+          ORDER_DESK_TEST_DATABASE: app_tests
         run: wp --path="$WP_PATH" --user=admin eval-file "$GITHUB_WORKSPACE/tests/complete-order.php"
