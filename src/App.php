@@ -141,7 +141,7 @@ class App extends BaseApp {
 			return new WP_Error( 'order_desk_not_found', __( 'Order not found.', 'order-desk' ), [ 'status' => 404 ] );
 		}
 
-		if ( false ) {
+		if ( 'processing' !== $order->get_status() ) {
 			return new WP_Error(
 				'order_desk_not_fulfillable',
 				__( 'Only orders that are processing can be marked as completed.', 'order-desk' ),
